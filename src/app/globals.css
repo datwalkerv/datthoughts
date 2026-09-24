@@ -1,26 +1,501 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  /* Near-black neutrals. No accent color: hierarchy comes from contrast. */
+  --color-bg: #0b0b0c;
+  --color-surface: #131314;
+  --color-raised: #19191b;
+  --color-line: #222224;
+  --color-line-strong: #333336;
+  --color-ink: #ededed;
+  --color-ink-soft: #cfcfd1;
+  --color-muted: #9a9a9e;
+  --color-faint: #6b6b70;
+
+  --font-sans: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, "SF Mono", Menlo, monospace;
+
+  --text-intro: clamp(1.875rem, 1.35rem + 2.1vw, 3rem);
+  --text-title: clamp(2.25rem, 1.6rem + 2.6vw, 3.75rem);
+  --text-body: 1.0625rem;
+
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    color-scheme: dark;
+    /* Reading column: ~66 characters of body text. */
+    --measure: 38rem;
+  }
+
+  html {
+    background: var(--color-bg);
+    color: var(--color-ink);
+    -webkit-text-size-adjust: 100%;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    scroll-padding-top: 6rem;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+
+  body {
+    min-height: 100dvh;
+    background: var(--color-bg);
+    font-family: var(--font-sans);
+    font-feature-settings: "ss01", "cv11";
+  }
+
+  ::selection {
+    background: var(--color-ink);
+    color: var(--color-bg);
+  }
+
+  :focus-visible {
+    outline: 1.5px solid var(--color-ink);
+    outline-offset: 3px;
+    border-radius: 4px;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* ── Utilities ──────────────────────────────────────────────── */
+
+.shell {
+  margin-inline: auto;
+  width: 100%;
+  max-width: 72rem;
+  padding-inline: 1.5rem;
+}
+
+@media (min-width: 640px) {
+  .shell {
+    padding-inline: 2.5rem;
+  }
+}
+
+/* Understated metadata: small, muted, tabular. */
+.meta {
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--color-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Keyboard hint, e.g. ⌘K. */
+.kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.25rem;
+  height: 1.25rem;
+  padding-inline: 0.3rem;
+  border-radius: 5px;
+  border: 1px solid var(--color-line-strong);
+  background: var(--color-raised);
+  box-shadow: inset 0 -1px 0 var(--color-line-strong);
+  font-family: var(--font-sans);
+  font-size: 0.6875rem;
+  line-height: 1;
+  color: var(--color-muted);
+}
+
+/* Reading progress, driven entirely by scroll — no JS. */
+.reading-progress {
+  display: none;
+}
+
+@supports (animation-timeline: scroll()) {
+  .reading-progress {
+    display: block;
+    position: fixed;
+    inset: 0 0 auto;
+    height: 1px;
+    z-index: 70;
+    transform-origin: 0 50%;
+    background: var(--color-ink);
+    opacity: 0.5;
+    animation: reading-progress linear both;
+    animation-timeline: scroll(root block);
+  }
+}
+
+@keyframes reading-progress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+/* ── Prose ──────────────────────────────────────────────────── */
+
+.prose-thought {
+  font-size: var(--text-body);
+  line-height: 1.78;
+  letter-spacing: -0.005em;
+  color: var(--color-ink-soft);
+  overflow-wrap: break-word;
+}
+
+@media (min-width: 640px) {
+  .prose-thought {
+    font-size: 1.125rem;
+  }
+}
+
+.prose-thought > * + * {
+  margin-top: 1.5em;
+}
+
+.prose-thought > :first-child {
+  margin-top: 0;
+}
+
+.prose-thought p {
+  text-wrap: pretty;
+}
+
+.prose-thought strong {
+  color: var(--color-ink);
+  font-weight: 600;
+}
+
+.prose-thought em {
+  font-style: italic;
+}
+
+.prose-thought h2,
+.prose-thought h3,
+.prose-thought h4 {
+  color: var(--color-ink);
+  font-weight: 600;
+  text-wrap: balance;
+  scroll-margin-top: 6rem;
+}
+
+.prose-thought h2 {
+  margin-top: 2.6em;
+  font-size: 1.45em;
+  line-height: 1.25;
+  letter-spacing: -0.025em;
+}
+
+.prose-thought h3 {
+  margin-top: 2.2em;
+  font-size: 1.15em;
+  line-height: 1.35;
+  letter-spacing: -0.015em;
+}
+
+.prose-thought h4 {
+  margin-top: 2em;
+  font-size: 1em;
+  color: var(--color-muted);
+}
+
+.prose-thought h2 + *,
+.prose-thought h3 + *,
+.prose-thought h4 + * {
+  margin-top: 0.7em;
+}
+
+.prose-thought .heading-anchor {
+  color: inherit;
+  text-decoration: none;
+}
+
+.prose-thought a:not(.heading-anchor) {
+  color: var(--color-ink);
+  text-decoration-line: underline;
+  text-decoration-color: var(--color-line-strong);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.24em;
+  transition: text-decoration-color 200ms var(--ease-out-soft);
+}
+
+.prose-thought a:not(.heading-anchor):hover {
+  text-decoration-color: var(--color-ink);
+}
+
+.prose-thought ul,
+.prose-thought ol {
+  padding-left: 1.4em;
+}
+
+.prose-thought ul {
+  list-style: none;
+}
+
+.prose-thought ul > li {
+  position: relative;
+}
+
+.prose-thought ul > li::before {
+  content: "";
+  position: absolute;
+  left: -1.1em;
+  top: 0.78em;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--color-faint);
+}
+
+.prose-thought ol {
+  list-style: decimal;
+}
+
+.prose-thought ol > li {
+  padding-left: 0.2em;
+}
+
+.prose-thought ol > li::marker {
+  color: var(--color-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.prose-thought li + li,
+.prose-thought li > ul,
+.prose-thought li > ol {
+  margin-top: 0.55em;
+}
+
+/* GFM task lists */
+.prose-thought ul.contains-task-list {
+  padding-left: 0;
+}
+
+.prose-thought li.task-list-item::before {
+  display: none;
+}
+
+.prose-thought li.task-list-item input {
+  appearance: none;
+  width: 0.9em;
+  height: 0.9em;
+  margin: 0 0.75em 0 0;
+  border: 1px solid var(--color-line-strong);
+  border-radius: 3px;
+  vertical-align: -0.1em;
+}
+
+.prose-thought li.task-list-item input:checked {
+  background: var(--color-ink);
+  border-color: var(--color-ink);
+  box-shadow: inset 0 0 0 2.5px var(--color-bg);
+}
+
+.prose-thought blockquote {
+  margin-block: 2.5em;
+  padding-left: 1.5em;
+  border-left: 1px solid var(--color-line-strong);
+  font-size: 1.3em;
+  line-height: 1.5;
+  letter-spacing: -0.02em;
+  font-weight: 500;
+  color: var(--color-ink);
+}
+
+.prose-thought blockquote > * + * {
+  margin-top: 0.8em;
+}
+
+/* A trailing "— Author" line reads as a quiet attribution. */
+.prose-thought blockquote > p:last-child:not(:first-child) {
+  font-size: 0.62em;
+  font-weight: 400;
+  letter-spacing: 0;
+  color: var(--color-muted);
+}
+
+.prose-thought hr {
+  border: 0;
+  height: 1px;
+  width: 3rem;
+  margin: 3.5em auto;
+  background: var(--color-line-strong);
+}
+
+.prose-thought :not(pre) > code {
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  padding: 0.15em 0.35em;
+  border-radius: 5px;
+  background: var(--color-raised);
+  color: var(--color-ink);
+}
+
+.prose-thought figure[data-rehype-pretty-code-figure] {
+  margin-block: 2.25em;
+  border: 1px solid var(--color-line);
+  border-radius: 10px;
+  background: var(--color-surface);
+  overflow: hidden;
+}
+
+.prose-thought [data-rehype-pretty-code-title] {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--color-muted);
+  padding: 0.7rem 1.25rem;
+  border-bottom: 1px solid var(--color-line);
+}
+
+.prose-thought pre {
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  line-height: 1.75;
+  overflow-x: auto;
+  padding: 1.1rem 1.25rem;
+  tab-size: 2;
+}
+
+.prose-thought pre code {
+  display: grid;
+  min-width: max-content;
+}
+
+.prose-thought pre [data-highlighted-line] {
+  background: var(--color-raised);
+  margin-inline: -1.25rem;
+  padding-inline: 1.25rem;
+}
+
+.prose-thought .figure-breakout {
+  margin-block: 3em;
+}
+
+@media (min-width: 64rem) {
+  .prose-thought .figure-breakout {
+    margin-inline: -6rem;
+  }
+}
+
+.prose-thought .table-wrap {
+  margin-block: 2.25em;
+  overflow-x: auto;
+}
+
+.prose-thought table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9em;
+  font-variant-numeric: tabular-nums;
+}
+
+.prose-thought th {
+  text-align: left;
+  font-weight: 500;
+  color: var(--color-muted);
+  border-bottom: 1px solid var(--color-line-strong);
+  padding: 0.65em 1em 0.65em 0;
+}
+
+.prose-thought td {
+  border-bottom: 1px solid var(--color-line);
+  padding: 0.75em 1em 0.75em 0;
+  vertical-align: top;
+}
+
+.prose-thought del {
+  color: var(--color-muted);
+}
+
+.prose-thought mark {
+  background: var(--color-raised);
+  color: var(--color-ink);
+  padding-inline: 0.15em;
+  border-radius: 3px;
+}
+
+/* Footnotes */
+.prose-thought sup a {
+  font-size: 0.75em;
+  text-decoration: none !important;
+  color: var(--color-muted) !important;
+  padding-inline: 0.1em;
+}
+
+.prose-thought section[data-footnotes] {
+  margin-top: 4.5em;
+  padding-top: 1.5em;
+  border-top: 1px solid var(--color-line);
+  font-size: 0.875em;
+  color: var(--color-muted);
+}
+
+.prose-thought section[data-footnotes] h2 {
+  margin-top: 0;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  color: var(--color-faint);
+}
+
+.prose-thought section[data-footnotes] ol {
+  margin-top: 1em;
+}
+
+.prose-thought .data-footnote-backref {
+  text-decoration: none !important;
+  margin-left: 0.3em;
+}
+
+.prose-thought .sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* ── View transitions ───────────────────────────────────────── */
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 200ms;
+  animation-timing-function: var(--ease-out-soft);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+
+  .reading-progress {
+    animation-duration: auto !important;
+  }
+}
+
+/* Second clause of an intro settles in after the first. */
+.intro-fade {
+  animation: intro-fade 1.1s var(--ease-out-soft) 0.55s both;
+}
+
+@keyframes intro-fade {
+  from {
+    opacity: 0;
+    filter: blur(6px);
+  }
+  to {
+    opacity: 1;
+    filter: blur(0);
+  }
 }
